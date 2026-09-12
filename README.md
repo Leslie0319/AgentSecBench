@@ -48,6 +48,10 @@ uv run pytest
 uv run ruff check .
 ```
 
+### Windows note
+
+On Windows, some current `uv` editable-install / launcher issues can break imports when the project or virtual environment path contains non-ASCII characters. If `uv sync` succeeds but `import agentsecbench` still raises `ModuleNotFoundError`, clone the repository to an ASCII-only path such as `C:\dev\AgentSecBench` and recreate `.venv` there.
+
 ## Repository layout
 
 ```text
