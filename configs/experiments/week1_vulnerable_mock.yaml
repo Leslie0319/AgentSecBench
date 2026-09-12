@@ -1,0 +1,9 @@
+run_id: week1-vulnerable-mock
+model:
+  backend: mock_vulnerable
+  model: mock-vulnerable-model
+dataset: data/attacks/week1.jsonl
+output_dir: runs/week1-vulnerable-mock
+generation:
+  temperature: 0.0
+  max_tokens: 128
