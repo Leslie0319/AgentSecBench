@@ -1,0 +1,9 @@
+run_id: week1-mock
+model:
+  backend: mock
+  model: mock-safe-model
+dataset: data/attacks/week1.jsonl
+output_dir: runs/week1-mock
+generation:
+  temperature: 0.0
+  max_tokens: 128
