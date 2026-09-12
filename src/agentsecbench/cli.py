@@ -7,6 +7,7 @@ import typer
 from agentsecbench.adapters.base import ModelAdapter
 from agentsecbench.adapters.mock import MockAdapter
 from agentsecbench.adapters.openai_compatible import OpenAICompatibleAdapter
+from agentsecbench.adapters.vulnerable_mock import VulnerableMockAdapter
 from agentsecbench.attacks.loaders import load_jsonl
 from agentsecbench.evaluators.keyword import KeywordLeakageEvaluator
 from agentsecbench.io import load_experiment_config, write_json, write_results
@@ -24,6 +25,9 @@ def main() -> None:
 def build_adapter(config) -> ModelAdapter:
     if config.backend == "mock":
         return MockAdapter(model=config.model)
+
+    if config.backend == "mock_vulnerable":
+        return VulnerableMockAdapter(model=config.model)
 
     if config.backend == "openai_compatible":
         if not config.base_url:
