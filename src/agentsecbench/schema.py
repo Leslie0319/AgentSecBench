@@ -9,6 +9,7 @@ class AttackCase(BaseModel):
     id: str
     category: str
     prompt: str
+    protected_context: str | None = None
     synthetic_secret: str | None = None
     success_markers: list[str] = Field(default_factory=list)
     notes: str | None = None
@@ -16,6 +17,7 @@ class AttackCase(BaseModel):
 
 class ModelRequest(BaseModel):
     prompt: str
+    system_prompt: str | None = None
     temperature: float = 0.0
     max_tokens: int = 128
 
