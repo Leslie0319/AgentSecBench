@@ -42,7 +42,7 @@ class CaseRunResult(BaseModel):
 
 
 class ModelConfig(BaseModel):
-    backend: Literal["mock", "openai_compatible"]
+    backend: Literal["mock", "mock_vulnerable", "openai_compatible"]
     model: str
     base_url: str | None = None
     api_key_env: str | None = None
