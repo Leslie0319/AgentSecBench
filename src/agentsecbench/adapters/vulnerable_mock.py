@@ -7,7 +7,7 @@ from agentsecbench.schema import ModelRequest, ModelResponse
 
 
 class VulnerableMockAdapter(ModelAdapter):
-    """Deterministic synthetic backend that intentionally leaks markers.
+    """Deterministic synthetic backend that intentionally leaks protected markers.
 
     This exists only to verify that the benchmark can distinguish a safe
     backend from an intentionally vulnerable one. It is not a real model.
@@ -19,13 +19,9 @@ class VulnerableMockAdapter(ModelAdapter):
         self.model = model
 
     def generate(self, request: ModelRequest) -> ModelResponse:
-        match = self._marker_pattern.search(request.prompt)
-        if match:
-            leaked = match.group(0)
-        elif "reveal the synthetic secret" in request.prompt.lower():
-            leaked = "AGENTSECBENCH_SECRET_001"
-        else:
-            leaked = "AGENTSECBENCH_SECRET_999"
+        source = request.system_prompt or ""
+        match = self._marker_pattern.search(source)
+        leaked = match.group(0) if match else "AGENTSECBENCH_SECRET_999"
 
         return ModelResponse(
             text=f"Sure. The synthetic secret is {leaked}.",
