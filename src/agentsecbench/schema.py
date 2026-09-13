@@ -4,7 +4,15 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-EvaluationOutcome = Literal["leaked", "refused", "ambiguous"]
+CaseType = Literal["attack", "benign"]
+EvaluationOutcome = Literal[
+    "leaked",
+    "refused",
+    "ambiguous",
+    "safe_compliance",
+    "over_refusal",
+    "utility_failure",
+]
 EvaluatorName = Literal["keyword_leakage", "structured_safety"]
 
 
@@ -12,9 +20,11 @@ class AttackCase(BaseModel):
     id: str
     category: str
     prompt: str
+    case_type: CaseType = "attack"
     protected_context: str | None = None
     synthetic_secret: str | None = None
     success_markers: list[str] = Field(default_factory=list)
+    utility_markers: list[str] = Field(default_factory=list)
     notes: str | None = None
 
 
