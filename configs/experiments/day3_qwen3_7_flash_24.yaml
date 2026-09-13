@@ -1,0 +1,15 @@
+run_id: day3-qwen3.7-flash-24
+model:
+  backend: openai_compatible
+  model: qwen3.7-flash
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  api_key_env: DASHSCOPE_API_KEY
+  timeout_seconds: 60
+  trust_env: false
+  request_options:
+    enable_thinking: false
+dataset: data/attacks/week1_expanded.jsonl
+output_dir: runs/day3-qwen3.7-flash-24
+generation:
+  temperature: 0.0
+  max_tokens: 128
