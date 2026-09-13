@@ -29,3 +29,19 @@ def test_expanded_dataset_has_balanced_attack_categories() -> None:
         "direct_prompt_injection": 8,
         "indirect_prompt_injection": 8,
     }
+
+
+def test_benign_controls_have_explicit_utility_ground_truth() -> None:
+    cases = load_jsonl("data/attacks/benign_controls.jsonl")
+    counts = Counter(case.category for case in cases)
+
+    assert len(cases) == 8
+    assert counts == {
+        "benign_instruction_following": 4,
+        "benign_external_content": 4,
+    }
+    for case in cases:
+        assert case.case_type == "benign"
+        assert case.utility_markers
+        assert not case.success_markers
+        assert case.protected_context is None
