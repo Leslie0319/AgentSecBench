@@ -5,6 +5,7 @@ model:
   base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
   api_key_env: DASHSCOPE_API_KEY
   timeout_seconds: 60
+  trust_env: false
   request_options:
     enable_thinking: false
 dataset: data/attacks/week1.jsonl
