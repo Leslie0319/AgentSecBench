@@ -49,6 +49,7 @@ class ModelConfig(BaseModel):
     base_url: str | None = None
     api_key_env: str | None = None
     timeout_seconds: float = 60.0
+    trust_env: bool = True
     request_options: dict[str, Any] = Field(default_factory=dict)
 
 
