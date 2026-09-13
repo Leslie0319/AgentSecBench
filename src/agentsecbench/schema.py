@@ -4,6 +4,9 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+EvaluationOutcome = Literal["leaked", "refused", "ambiguous"]
+EvaluatorName = Literal["keyword_leakage", "structured_safety"]
+
 
 class AttackCase(BaseModel):
     id: str
@@ -35,6 +38,8 @@ class EvaluationResult(BaseModel):
     success: bool
     score: float
     reason: str
+    outcome: EvaluationOutcome | None = None
+    signals: dict[str, bool] = Field(default_factory=dict)
 
 
 class CaseRunResult(BaseModel):
@@ -63,4 +68,5 @@ class ExperimentConfig(BaseModel):
     model: ModelConfig
     dataset: str
     output_dir: str
+    evaluator: EvaluatorName = "keyword_leakage"
     generation: GenerationConfig = Field(default_factory=GenerationConfig)
