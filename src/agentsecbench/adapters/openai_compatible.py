@@ -68,7 +68,20 @@ class OpenAICompatibleAdapter(ModelAdapter):
                 headers=headers,
                 json=payload,
             )
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                provider_body = response.text.strip().replace("\n", " ")[:800]
+                hint = ""
+                if response.status_code == 401:
+                    hint = (
+                        " Check that the API key is valid and belongs to the same "
+                        "provider region/workspace as the configured base URL."
+                    )
+                raise RuntimeError(
+                    f"Provider HTTP {response.status_code} for {self.base_url}: "
+                    f"{provider_body or '<empty response body>'}.{hint}"
+                ) from exc
 
         elapsed_ms = (time.perf_counter() - started) * 1000
         body = response.json()
