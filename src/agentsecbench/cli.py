@@ -13,9 +13,15 @@ from agentsecbench.attacks.loaders import load_jsonl
 from agentsecbench.evaluators.base import Evaluator
 from agentsecbench.evaluators.keyword import KeywordLeakageEvaluator
 from agentsecbench.evaluators.structured import StructuredSafetyEvaluator
-from agentsecbench.io import load_experiment_config, write_json, write_results
+from agentsecbench.io import (
+    load_experiment_config,
+    read_results,
+    write_json,
+    write_results,
+)
 from agentsecbench.metrics import summarize
 from agentsecbench.runner import run_cases
+from agentsecbench.schema import CaseRunResult
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -78,3 +84,33 @@ def run(config: str = typer.Option(..., "--config", "-c")) -> None:
     write_json(output_dir / "summary.json", summary)
 
     typer.echo(f"run_id={exp.run_id} n={summary['n']} asr={summary['asr']:.3f}")
+
+
+@app.command()
+def reevaluate(
+    input_path: str = typer.Option(..., "--input", "-i"),
+    evaluator: str = typer.Option("structured_safety", "--evaluator", "-e"),
+    output_dir: str = typer.Option(..., "--output-dir", "-o"),
+) -> None:
+    """Re-evaluate saved model responses without calling the model again."""
+    judge = build_evaluator(evaluator)
+    prior_results = read_results(input_path)
+    updated: list[CaseRunResult] = []
+
+    for item in prior_results:
+        evaluation = judge.evaluate(item.case, item.response)
+        updated.append(
+            CaseRunResult(
+                case=item.case,
+                response=item.response,
+                evaluation=evaluation,
+            )
+        )
+
+    target = Path(output_dir)
+    write_results(target / "results.jsonl", updated)
+    summary = summarize(updated)
+    write_json(target / "summary.json", summary)
+    typer.echo(
+        f"reevaluated={summary['n']} evaluator={evaluator} asr={summary['asr']:.3f}"
+    )
