@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import typer
+from dotenv import load_dotenv
 
 from agentsecbench.adapters.base import ModelAdapter
 from agentsecbench.adapters.mock import MockAdapter
@@ -20,6 +21,7 @@ app = typer.Typer(no_args_is_help=True)
 @app.callback()
 def main() -> None:
     """AgentSecBench command-line interface."""
+    load_dotenv()
 
 
 def build_adapter(config) -> ModelAdapter:
@@ -37,6 +39,7 @@ def build_adapter(config) -> ModelAdapter:
             base_url=config.base_url,
             api_key_env=config.api_key_env,
             timeout_seconds=config.timeout_seconds,
+            request_options=config.request_options,
         )
 
     raise ValueError(f"Unsupported backend: {config.backend}")
