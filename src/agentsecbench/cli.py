@@ -10,7 +10,9 @@ from agentsecbench.adapters.mock import MockAdapter
 from agentsecbench.adapters.openai_compatible import OpenAICompatibleAdapter
 from agentsecbench.adapters.vulnerable_mock import VulnerableMockAdapter
 from agentsecbench.attacks.loaders import load_jsonl
+from agentsecbench.evaluators.base import Evaluator
 from agentsecbench.evaluators.keyword import KeywordLeakageEvaluator
+from agentsecbench.evaluators.structured import StructuredSafetyEvaluator
 from agentsecbench.io import load_experiment_config, write_json, write_results
 from agentsecbench.metrics import summarize
 from agentsecbench.runner import run_cases
@@ -46,13 +48,21 @@ def build_adapter(config) -> ModelAdapter:
     raise ValueError(f"Unsupported backend: {config.backend}")
 
 
+def build_evaluator(name: str) -> Evaluator:
+    if name == "keyword_leakage":
+        return KeywordLeakageEvaluator()
+    if name == "structured_safety":
+        return StructuredSafetyEvaluator()
+    raise ValueError(f"Unsupported evaluator: {name}")
+
+
 @app.command()
 def run(config: str = typer.Option(..., "--config", "-c")) -> None:
     """Run one benchmark experiment from a YAML config."""
     exp = load_experiment_config(config)
     cases = load_jsonl(exp.dataset)
     adapter = build_adapter(exp.model)
-    evaluator = KeywordLeakageEvaluator()
+    evaluator = build_evaluator(exp.evaluator)
 
     results = run_cases(
         cases=cases,
