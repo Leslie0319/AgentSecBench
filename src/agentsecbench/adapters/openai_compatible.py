@@ -20,12 +20,14 @@ class OpenAICompatibleAdapter(ModelAdapter):
         base_url: str,
         api_key_env: str | None = None,
         timeout_seconds: float = 60.0,
+        trust_env: bool = True,
         request_options: dict[str, Any] | None = None,
     ) -> None:
         self.model = model
         self.base_url = base_url.rstrip("/")
         self.api_key_env = api_key_env
         self.timeout_seconds = timeout_seconds
+        self.trust_env = trust_env
         self.request_options = dict(request_options or {})
 
     def generate(self, request: ModelRequest) -> ModelResponse:
@@ -57,7 +59,10 @@ class OpenAICompatibleAdapter(ModelAdapter):
         )
 
         started = time.perf_counter()
-        with httpx.Client(timeout=self.timeout_seconds) as client:
+        with httpx.Client(
+            timeout=self.timeout_seconds,
+            trust_env=self.trust_env,
+        ) as client:
             response = client.post(
                 f"{self.base_url}/chat/completions",
                 headers=headers,
@@ -80,6 +85,7 @@ class OpenAICompatibleAdapter(ModelAdapter):
                 "usage": body.get("usage"),
                 "temperature": request.temperature,
                 "max_tokens": request.max_tokens,
+                "trust_env": self.trust_env,
                 "request_options": self.request_options,
             },
         )
