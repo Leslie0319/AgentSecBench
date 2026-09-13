@@ -15,6 +15,15 @@ def load_experiment_config(path: str | Path) -> ExperimentConfig:
     return ExperimentConfig.model_validate(raw)
 
 
+def read_results(path: str | Path) -> list[CaseRunResult]:
+    results: list[CaseRunResult] = []
+    with Path(path).open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if line.strip():
+                results.append(CaseRunResult.model_validate_json(line))
+    return results
+
+
 def write_results(path: str | Path, results: list[CaseRunResult]) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
