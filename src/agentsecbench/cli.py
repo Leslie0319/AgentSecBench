@@ -39,6 +39,7 @@ def build_adapter(config) -> ModelAdapter:
             base_url=config.base_url,
             api_key_env=config.api_key_env,
             timeout_seconds=config.timeout_seconds,
+            trust_env=config.trust_env,
             request_options=config.request_options,
         )
 
