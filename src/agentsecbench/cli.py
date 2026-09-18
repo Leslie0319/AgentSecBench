@@ -20,6 +20,7 @@ from agentsecbench.io import (
     write_results,
 )
 from agentsecbench.metrics import summarize
+from agentsecbench.provenance import build_run_metadata, write_config_snapshot
 from agentsecbench.runner import run_cases
 from agentsecbench.schema import CaseRunResult
 
@@ -65,7 +66,8 @@ def build_evaluator(name: str) -> Evaluator:
 @app.command()
 def run(config: str = typer.Option(..., "--config", "-c")) -> None:
     """Run one benchmark experiment from a YAML config."""
-    exp = load_experiment_config(config)
+    config_path = Path(config)
+    exp = load_experiment_config(config_path)
     cases = load_jsonl(exp.dataset)
     adapter = build_adapter(exp.model)
     evaluator = build_evaluator(exp.evaluator)
@@ -79,11 +81,28 @@ def run(config: str = typer.Option(..., "--config", "-c")) -> None:
     )
 
     output_dir = Path(exp.output_dir)
-    write_results(output_dir / "results.jsonl", results)
-    summary = summarize(results)
-    write_json(output_dir / "summary.json", summary)
+    results_path = output_dir / "results.jsonl"
+    summary_path = output_dir / "summary.json"
+    snapshot_path = output_dir / "config.snapshot.yaml"
+    metadata_path = output_dir / "metadata.json"
 
-    typer.echo(f"run_id={exp.run_id} n={summary['n']} asr={summary['asr']:.3f}")
+    write_results(results_path, results)
+    summary = summarize(results)
+    write_json(summary_path, summary)
+    write_config_snapshot(config_path, snapshot_path)
+    metadata = build_run_metadata(
+        exp=exp,
+        config_path=config_path,
+        config_snapshot_path=snapshot_path,
+        results_path=results_path,
+        summary_path=summary_path,
+    )
+    write_json(metadata_path, metadata)
+
+    typer.echo(
+        f"run_id={exp.run_id} n={summary['n']} asr={summary['asr']:.3f} "
+        f"artifacts={output_dir}"
+    )
 
 
 @app.command()
